@@ -1,0 +1,10 @@
+reg_id,lastname,firstname,fanname,level,is_staff,is_minor
+1,Butts,Seymour,Dairy Air,Attendee,0,0
+10,Screws,Lucy,,Sponsor,0,0
+100,Doe,John,Some Fox,Super Sponsor,0,0
+1000,Alopex,Alopex,Alopex alopex,Alopex,0,0
+10000,Doe,Jane,5-Digit ID,Attendee,0,0
+1001,Minor,Some,Kit kit kit kit kit,Attendee,0,1
+1002,Staff Member,Some,Kit kit kit kit kit,Attendee,1,0
+1003,Minor,Sponsor,Kit kit kit kit kit,Super Sponsor,0,1
+1004,Staff Member,Sponsor,Kit kit kit kit kit,Super Sponsor,1,0

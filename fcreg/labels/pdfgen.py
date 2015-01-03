@@ -28,7 +28,8 @@ class Avery5260:
     return (Avery5260.MARGIN_LEFT + column * (Avery5260.LABEL_WIDTH + Avery5260.SPACE_X),
         Avery5260.MARGIN_BOTTOM + (9 - row) * (Avery5260.LABEL_HEIGHT + Avery5260.SPACE_Y))
 
-NAME_STYLE = ParagraphStyle("Name")
+NAME_STYLE = ParagraphStyle("Name", fontSize=12)
+INFO_STYLE = ParagraphStyle("Info", fontSize=8, leading=8)
         
 def main(argv):
   arg_parser = argparse.ArgumentParser()
@@ -62,21 +63,36 @@ def main(argv):
           0.125 * inch, stroke=1)
     
     barcode_value = args.barcode_format.format(row["reg_id"])
-    barcode = code128.Code128(barcode_value, barWidth=0.50, barHeight=0.375 * inch)
+    barcode = code128.Code128(barcode_value, barWidth=0.50, barHeight=0.375 * inch, humanReadable=True)
     barcode.drawOn(c,
         x + Avery5260.LABEL_WIDTH - 0.125 * inch - barcode.width,
         y + Avery5260.LABEL_HEIGHT - 0.125 * inch - barcode.height)
 
-    name_frame = Frame(x, y,
+    name_frame = Frame(x, y + Avery5260.LABEL_HEIGHT / 2,
         Avery5260.LABEL_WIDTH - barcode.width,
-        Avery5260.LABEL_HEIGHT,
+        Avery5260.LABEL_HEIGHT / 2,
         leftPadding=0.125 * inch,
         topPadding=0.125 * inch,
         rightPadding=0.125 * inch,
-        bottomPadding=0.125 * inch,
+        bottomPadding=0,
         showBoundary=0)
     name = "%s, %s" % (row["lastname"], row["firstname"])
     name_frame.addFromList([Paragraph(name, NAME_STYLE)], c)
+
+    info_frame = Frame(x, y,
+        Avery5260.LABEL_WIDTH,
+        Avery5260.LABEL_HEIGHT / 2,
+        leftPadding=0.125 * inch,
+        topPadding=0,
+        rightPadding=0.125 * inch,
+        bottomPadding=0.125 * inch,
+        showBoundary=0)
+    fan_info = row["fanname"] or "(no fan name)"
+    reg_attributes = ["#%s" % row["reg_id"], row["level"]]
+    if int(row["is_minor"]): reg_attributes.append("Minor")
+    if int(row["is_staff"]): reg_attributes.append("Staff")
+    reg_info = " / ".join(reg_attributes)
+    info_frame.addFromList([Paragraph(fan_info, INFO_STYLE), Paragraph(reg_info, INFO_STYLE)], c)
     
     label_id += 1
     if label_id % 30 == 0:

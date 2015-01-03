@@ -28,8 +28,25 @@ class Avery5260:
     return (Avery5260.MARGIN_LEFT + column * (Avery5260.LABEL_WIDTH + Avery5260.SPACE_X),
         Avery5260.MARGIN_BOTTOM + (9 - row) * (Avery5260.LABEL_HEIGHT + Avery5260.SPACE_Y))
 
-NAME_STYLE = ParagraphStyle("Name", fontSize=12)
-INFO_STYLE = ParagraphStyle("Info", fontSize=8, leading=9)
+NAME_STYLE = ParagraphStyle("Name", fontSize=12, allowWidows=3, allowOrphans=3)
+INFO_STYLE = ParagraphStyle("Info", fontSize=8, leading=9, allowWidows=3, allowOrphans=3)
+
+def truncate_further(text):
+  fragments = text.split(" ")
+  return " ".join(fragments[:-1])
+
+def add_text_truncated(args, style=None, frame=None, canvas=None):
+  text_to_add = args[:]
+  while text_to_add:
+    line = text_to_add.pop(0)
+    line_was_added = False
+    while not line_was_added:
+      story = [Paragraph(line, style)]
+      frame.addFromList(story, canvas)
+      if len(story):
+        line = truncate_further(line)
+      else:
+        line_was_added = True
 
 def main(argv):
   arg_parser = argparse.ArgumentParser()
@@ -77,7 +94,7 @@ def main(argv):
         bottomPadding=0,
         showBoundary=0)
     name = "%s, %s" % (row["lastname"], row["firstname"])
-    name_frame.addFromList([Paragraph(name, NAME_STYLE)], c)
+    add_text_truncated([name], style=NAME_STYLE, frame=name_frame, canvas=c)
 
     info_frame = Frame(x, y,
         Avery5260.LABEL_WIDTH,
@@ -92,8 +109,7 @@ def main(argv):
     if int(row["is_minor"]): reg_attributes.append("Minor")
     if int(row["is_staff"]): reg_attributes.append("Staff")
     reg_info = " / ".join(reg_attributes)
-    info_frame.addFromList([Paragraph(reg_info, INFO_STYLE), Paragraph(fan_info, INFO_STYLE)], c)
-    
+    add_text_truncated([reg_info, fan_info], frame=info_frame, style=INFO_STYLE, canvas=c)
     label_id += 1
     if label_id % 30 == 0:
       c.showPage()

@@ -30,3 +30,7 @@ reg_id,lastname,firstname,fanname,level,is_staff,is_minor
 1021,Fudnuddler,Stuart,,Attendee,0,0
 1022,Fudnuddler,Stud,,Attendee,0,0
 1023,Fudnuddler,Lud,,Attendee,0,0
+2001,Name,This person has a very long,,Attendee,0,0
+2002,Name,Real,This person also has a very long fan name that we may not be able to print,Attendee,0,0
+2003,Name,Emoji,💩,Attendee,0,0
+2004,Name,Kanji,セクシーなオオカミ,Attendee,0,0

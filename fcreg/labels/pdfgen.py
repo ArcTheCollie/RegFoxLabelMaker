@@ -29,7 +29,7 @@ class Avery5260:
         Avery5260.MARGIN_BOTTOM + (9 - row) * (Avery5260.LABEL_HEIGHT + Avery5260.SPACE_Y))
 
 NAME_STYLE = ParagraphStyle("Name", fontSize=12)
-INFO_STYLE = ParagraphStyle("Info", fontSize=8, leading=8)
+INFO_STYLE = ParagraphStyle("Info", fontSize=8, leading=9)
         
 def main(argv):
   arg_parser = argparse.ArgumentParser()
@@ -81,7 +81,7 @@ def main(argv):
 
     info_frame = Frame(x, y,
         Avery5260.LABEL_WIDTH,
-        Avery5260.LABEL_HEIGHT / 2,
+        0.125 * inch + 2 * 9,
         leftPadding=0.125 * inch,
         topPadding=0,
         rightPadding=0.125 * inch,

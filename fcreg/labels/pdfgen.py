@@ -1,3 +1,4 @@
+import argparse
 import csv
 import os
 from reportlab.pdfgen import canvas
@@ -6,7 +7,6 @@ from reportlab.lib.units import inch
 import sys
 
 FONT_NAME = "Helvetica" # TODO: Use TTFont to register Open Sans
-PRINT_OUTLINES = False
 
 class Avery5260:
   MARGIN_TOP = 0.5 * inch
@@ -26,26 +26,32 @@ class Avery5260:
         Avery5260.MARGIN_BOTTOM + (9 - row) * (Avery5260.LABEL_HEIGHT + Avery5260.SPACE_Y))
 
 def main(argv):
-  if len(argv) < 3:
-    print >> sys.stderr, "Usage: python fcreg/labels/pdfgen.py CSV_FILE PDF_FILE"
-    sys.exit(2)
-  _, csv_file, pdf_file = argv[:3]
+  arg_parser = argparse.ArgumentParser()
+  arg_parser.add_argument("--outlines", action="store_true")
+  arg_parser.add_argument("-v", "--verbose", dest="verbosity", action="count")
+  arg_parser.add_argument("source", metavar="CSV_FILE")
+  arg_parser.add_argument("dest", metavar="PDF_FILE")
+  args = arg_parser.parse_args()
+
+  csv_file = args.source
+  pdf_file = args.dest
+  if args.verbosity >= 1:
+    print "Outputting %s to %s." % (csv_file, pdf_file)
 
   data = None
   with open(csv_file, "r") as csv_file_object:
     data = list(csv.DictReader(csv_file_object))
-    data.sort(key=lambda x: x["fanname"])
-    data.sort(key=lambda x: x["firstname"])
-    data.sort(key=lambda x: x["lastname"])
+    data.sort(key=lambda x: (x["lastname"], x["firstname"], x["fanname"]))
 
   c = canvas.Canvas(pdf_file, pagesize=letter)
   label_id = 0
   for row in data:
-    print "Processing %s %s (%s)" % (row["firstname"], row["lastname"], row["fanname"])
+    if args.verbosity >= 1:
+      print "Processing %s %s (%s)" % (row["firstname"], row["lastname"], row["fanname"])
     x, y = Avery5260.bottom_left(label_id)
     c.setFont(FONT_NAME, 14)
     c.setStrokeColorRGB(0, 0, 0)
-    if PRINT_OUTLINES:
+    if args.outlines:
       c.roundRect(x, y, Avery5260.LABEL_WIDTH, Avery5260.LABEL_HEIGHT,
           0.125 * inch, stroke=1)
     c.drawString(x, y, "%s, %s (%s)"

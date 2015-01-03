@@ -2,7 +2,7 @@
 
 set -eu
 
-STANDARD_OPTIONS=(-v --barcode_format "U15{0:0>5}")
+STANDARD_OPTIONS=(-v)
 
 [[ -f "test.pdf" ]] && rm test.pdf
 python -m fcreg.labels.pdfgen "${STANDARD_OPTIONS[@]}" \

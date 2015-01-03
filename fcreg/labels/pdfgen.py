@@ -30,10 +30,10 @@ class Avery5260:
 
 NAME_STYLE = ParagraphStyle("Name", fontSize=12)
 INFO_STYLE = ParagraphStyle("Info", fontSize=8, leading=9)
-        
+
 def main(argv):
   arg_parser = argparse.ArgumentParser()
-  arg_parser.add_argument("--barcode_format", default="{0}")
+  arg_parser.add_argument("--barcode_format", default="U15{0:0>5}")
   arg_parser.add_argument("--outlines", action="store_true")
   arg_parser.add_argument("-v", "--verbose", dest="verbosity", action="count")
   arg_parser.add_argument("source", metavar="CSV_FILE")
@@ -63,7 +63,7 @@ def main(argv):
           0.125 * inch, stroke=1)
     
     barcode_value = args.barcode_format.format(row["reg_id"])
-    barcode = code128.Code128(barcode_value, barWidth=0.50, barHeight=0.375 * inch, humanReadable=True)
+    barcode = code128.Code128(barcode_value, barWidth=0.5, barHeight=0.375 * inch, humanReadable=True)
     barcode.drawOn(c,
         x + Avery5260.LABEL_WIDTH - 0.125 * inch - barcode.width,
         y + Avery5260.LABEL_HEIGHT - 0.125 * inch - barcode.height)
@@ -92,7 +92,7 @@ def main(argv):
     if int(row["is_minor"]): reg_attributes.append("Minor")
     if int(row["is_staff"]): reg_attributes.append("Staff")
     reg_info = " / ".join(reg_attributes)
-    info_frame.addFromList([Paragraph(fan_info, INFO_STYLE), Paragraph(reg_info, INFO_STYLE)], c)
+    info_frame.addFromList([Paragraph(reg_info, INFO_STYLE), Paragraph(fan_info, INFO_STYLE)], c)
     
     label_id += 1
     if label_id % 30 == 0:

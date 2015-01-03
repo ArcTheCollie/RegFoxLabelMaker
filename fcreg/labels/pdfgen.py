@@ -1,9 +1,12 @@
 import argparse
 import csv
 import os
-from reportlab.pdfgen import canvas
+from reportlab.graphics.barcode import code128
 from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import inch
+from reportlab.platypus import Frame, Paragraph
+from reportlab.pdfgen import canvas
 import sys
 
 FONT_NAME = "Helvetica" # TODO: Use TTFont to register Open Sans
@@ -25,8 +28,11 @@ class Avery5260:
     return (Avery5260.MARGIN_LEFT + column * (Avery5260.LABEL_WIDTH + Avery5260.SPACE_X),
         Avery5260.MARGIN_BOTTOM + (9 - row) * (Avery5260.LABEL_HEIGHT + Avery5260.SPACE_Y))
 
+NAME_STYLE = ParagraphStyle("Name")
+        
 def main(argv):
   arg_parser = argparse.ArgumentParser()
+  arg_parser.add_argument("--barcode_format", default="{0}")
   arg_parser.add_argument("--outlines", action="store_true")
   arg_parser.add_argument("-v", "--verbose", dest="verbosity", action="count")
   arg_parser.add_argument("source", metavar="CSV_FILE")
@@ -54,8 +60,24 @@ def main(argv):
     if args.outlines:
       c.roundRect(x, y, Avery5260.LABEL_WIDTH, Avery5260.LABEL_HEIGHT,
           0.125 * inch, stroke=1)
-    c.drawString(x, y, "%s, %s (%s)"
-        % (row["lastname"], row["firstname"], row["fanname"]))
+    
+    barcode_value = args.barcode_format.format(row["reg_id"])
+    barcode = code128.Code128(barcode_value, barWidth=0.50, barHeight=0.375 * inch)
+    barcode.drawOn(c,
+        x + Avery5260.LABEL_WIDTH - 0.125 * inch - barcode.width,
+        y + Avery5260.LABEL_HEIGHT - 0.125 * inch - barcode.height)
+
+    name_frame = Frame(x, y,
+        Avery5260.LABEL_WIDTH - barcode.width,
+        Avery5260.LABEL_HEIGHT,
+        leftPadding=0.125 * inch,
+        topPadding=0.125 * inch,
+        rightPadding=0.125 * inch,
+        bottomPadding=0.125 * inch,
+        showBoundary=0)
+    name = "%s, %s" % (row["lastname"], row["firstname"])
+    name_frame.addFromList([Paragraph(name, NAME_STYLE)], c)
+    
     label_id += 1
     if label_id % 30 == 0:
       c.showPage()

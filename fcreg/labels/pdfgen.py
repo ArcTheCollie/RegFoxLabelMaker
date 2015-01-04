@@ -65,7 +65,7 @@ def main(argv):
   data = None
   with open(csv_file, "r") as csv_file_object:
     data = list(csv.DictReader(csv_file_object))
-    data.sort(key=lambda x: (x["lastname"], x["firstname"], x["fanname"]))
+    data.sort(key=lambda x: (x["lastname"].lower(), x["firstname"].lower(), x["fanname"].lower()))
 
   c = canvas.Canvas(pdf_file, pagesize=letter)
   label_id = 0
